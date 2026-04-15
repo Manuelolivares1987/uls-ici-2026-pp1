@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PP1 - Introducción a la ICI - ULS 2026</title>
+<style>
+:root{--primary:#1a3a5c;--accent:#2980b9;--success:#27ae60;--warning:#f39c12;--danger:#e74c3c;--bg:#f0f4f8;--card:#fff}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:#333;min-height:100vh}
+.header{background:linear-gradient(135deg,var(--primary),#1c2e4a);color:#fff;padding:18px 20px;text-align:center;position:sticky;top:0;z-index:50;box-shadow:0 2px 10px rgba(0,0,0,.3)}
+.header h1{font-size:1.3rem;margin-bottom:3px}
+.header-row{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+.timer{font-family:'Consolas',monospace;font-size:1.4rem;font-weight:900;padding:6px 16px;border-radius:8px;background:rgba(255,255,255,.15)}
+.timer.warning{background:var(--warning);color:#000}
+.timer.danger{background:var(--danger);animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
+.progress-bar{display:flex;gap:4px;margin-top:8px}
+.progress-step{flex:1;height:6px;border-radius:3px;background:rgba(255,255,255,.2);transition:.3s}
+.progress-step.done{background:var(--success)}
+.progress-step.active{background:var(--warning)}
+.container{max-width:900px;margin:0 auto;padding:16px}
+.card{background:var(--card);border-radius:12px;padding:22px;margin-bottom:16px;box-shadow:0 2px 10px rgba(0,0,0,.08)}
+.card h2{color:var(--primary);margin-bottom:12px;font-size:1.15rem}
+.card h3{color:var(--primary);margin-bottom:8px;font-size:1.05rem}
+
+/* Forms */
+.form-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px;align-items:center}
+.form-row label{font-weight:600;min-width:100px}
+.form-row input,.form-row select{flex:1;padding:10px 12px;border:2px solid #ddd;border-radius:8px;font-size:1rem;min-width:180px}
+.form-row input:focus{border-color:var(--accent);outline:none}
+
+/* Sections */
+.section{display:none}
+.section.active{display:block}
+.section-header{background:var(--accent);color:#fff;padding:14px 20px;border-radius:10px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center}
+.section-header h2{color:#fff;margin:0;font-size:1.1rem}
+.section-badge{background:rgba(255,255,255,.2);padding:4px 12px;border-radius:20px;font-size:.85rem}
+
+/* MC */
+.mc-question{background:#fafbfc;border:2px solid #e0e5ec;border-radius:10px;padding:16px;margin-bottom:14px}
+.mc-question.answered{border-color:var(--accent)}
+.mc-num{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:var(--accent);color:#fff;font-weight:700;font-size:.85rem;margin-right:8px;flex-shrink:0}
+.mc-text{font-weight:600;color:var(--primary);margin-bottom:12px;display:flex;align-items:flex-start}
+.mc-text span{padding-top:3px}
+.mc-options{display:flex;flex-direction:column;gap:8px}
+.mc-option{display:flex;align-items:center;gap:10px;padding:11px 14px;border:2px solid #e0e5ec;border-radius:8px;cursor:pointer;transition:.2s;font-size:.95rem}
+.mc-option:hover{border-color:var(--accent);background:#f0f7ff}
+.mc-option.selected{border-color:var(--accent);background:#e8f4fd;font-weight:600}
+.mc-option input{display:none}
+.mc-letter{font-weight:700;color:var(--accent);min-width:20px}
+
+/* Excel tables */
+.table-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:10px 0}
+.excel-table{border-collapse:collapse;font-size:.82rem;min-width:100%}
+.excel-table th,.excel-table td{padding:6px 9px;border:1px solid #c0c0c0;text-align:center;white-space:nowrap}
+.excel-table .col-header{background:#e8eaed;color:#444;font-weight:700;font-size:.78rem}
+.excel-table .row-header{background:#e8eaed;color:#444;font-weight:700;width:30px}
+.excel-table .cell{background:#fff;text-align:right}
+.excel-table .cell-text{text-align:left}
+.table-label{font-size:.88rem;font-weight:700;color:var(--primary);margin:14px 0 4px}
+.table-note{font-size:.78rem;color:#666;font-style:italic;margin-bottom:4px}
+
+/* Formula */
+.pregunta{background:#fafbfc;border:2px solid #e0e5ec;border-radius:10px;padding:14px;margin-bottom:12px}
+.pregunta:focus-within{border-color:var(--accent)}
+.pregunta-header{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.pregunta-num{background:var(--accent);color:#fff;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.82rem;flex-shrink:0}
+.pregunta-text{font-weight:600;color:var(--primary);font-size:.92rem}
+.hint{color:#666;font-size:.8rem;margin-bottom:6px;font-style:italic}
+.badge{display:inline-block;padding:2px 7px;border-radius:10px;font-size:.72rem;font-weight:700;background:#e8f0fe;color:var(--accent)}
+.formula-row{display:flex;gap:8px;align-items:center;margin-bottom:5px;flex-wrap:wrap}
+.formula-row label{font-size:.8rem;color:#555;font-weight:600;min-width:60px}
+.formula-input{flex:1;padding:9px 11px;border:2px solid #ccc;border-radius:8px;font-family:'Consolas',monospace;font-size:.9rem;min-width:160px}
+.formula-input:focus{border-color:var(--accent);outline:none;background:#fffff0}
+.btn-calc{padding:9px 14px;border:none;border-radius:8px;background:var(--accent);color:#fff;font-weight:700;cursor:pointer;font-size:.82rem;white-space:nowrap}
+.result-display{padding:7px 12px;border-radius:8px;font-family:'Consolas',monospace;font-size:.9rem;font-weight:700;min-height:36px;display:flex;align-items:center;border:2px solid #e0e0e0;background:#f8f9fa}
+.result-display.calculated{background:#eafaf1;border-color:var(--success);color:var(--success)}
+.result-display.error{background:#fdf0ef;border-color:var(--danger);color:var(--danger);font-size:.78rem}
+
+/* Reasoning */
+.reasoning-context{background:#fff8e1;border-left:4px solid var(--warning);padding:15px;border-radius:0 8px 8px 0;margin-bottom:16px;line-height:1.6;font-size:.92rem}
+.reasoning-q{margin-bottom:16px}
+.reasoning-q label{display:block;font-weight:600;color:var(--primary);margin-bottom:6px;font-size:.95rem}
+.reasoning-q textarea{width:100%;min-height:120px;padding:12px;border:2px solid #ddd;border-radius:8px;font-family:inherit;font-size:.92rem;resize:vertical;line-height:1.5}
+.reasoning-q textarea:focus{border-color:var(--accent);outline:none}
+.char-count{text-align:right;font-size:.75rem;color:#999;margin-top:2px}
+
+/* Buttons */
+.btn{padding:13px 24px;border:none;border-radius:10px;font-size:1rem;font-weight:700;cursor:pointer;transition:.3s}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-primary:hover{background:#2471a3}
+.btn-success{background:var(--success);color:#fff}
+.btn-danger{background:var(--danger);color:#fff}
+.btn-block{width:100%}
+.btn[disabled]{background:#bdc3c7;color:#7f8c8d;cursor:not-allowed}
+.btn-send{padding:13px 20px;border:none;border-radius:10px;font-size:.95rem;font-weight:700;cursor:pointer;color:#fff;transition:.3s;width:100%;max-width:380px}
+
+/* Result */
+.result-panel{display:none;background:linear-gradient(135deg,var(--primary),#2c3e50);color:#fff;border-radius:12px;padding:28px;text-align:center;margin-top:16px}
+.result-panel.show{display:block}
+.result-code{font-family:'Consolas',monospace;font-size:2rem;font-weight:900;letter-spacing:4px;background:rgba(255,255,255,.15);padding:10px 22px;border-radius:10px;margin:10px 0;display:inline-block}
+
+/* Prof */
+.prof-toggle{position:fixed;bottom:16px;right:16px;background:var(--primary);color:#fff;border:none;width:44px;height:44px;border-radius:50%;font-size:1.1rem;cursor:pointer;box-shadow:0 4px 15px rgba(0,0,0,.3);z-index:100}
+.prof-mode{display:none;background:var(--card);border-radius:12px;padding:22px;margin-top:16px;box-shadow:0 2px 10px rgba(0,0,0,.08)}
+.prof-mode.show{display:block}
+.prof-input{display:flex;gap:8px;margin-bottom:12px}
+.prof-input input{flex:1;padding:10px;border:2px solid #ddd;border-radius:8px;font-family:monospace;font-size:1rem;letter-spacing:2px;text-transform:uppercase}
+.prof-result{padding:12px;border-radius:8px;margin-top:8px}
+.prof-result.valid{background:#eafaf1;border:2px solid var(--success)}
+.prof-result.invalid{background:#fdf0ef;border:2px solid var(--danger)}
+
+.warning-box{background:#fdf0ef;border:2px solid var(--danger);border-radius:10px;padding:14px;margin-bottom:14px;font-size:.9rem;color:#721c24}
+
+@media(max-width:600px){
+  .container{padding:10px}
+  .card{padding:14px}
+  .form-row{flex-direction:column}
+  .form-row input,.form-row select{min-width:0;width:100%}
+  .header h1{font-size:1.1rem}
+  .timer{font-size:1.1rem}
+  .mc-option{padding:10px 12px;font-size:.88rem}
+  .excel-table{font-size:.72rem}
+  .excel-table th,.excel-table td{padding:4px 5px}
+  .formula-row{flex-direction:column}
+  .formula-input{min-width:0;width:100%}
+  .section-header{flex-direction:column;gap:6px;text-align:center}
+  .reasoning-q textarea{min-height:100px}
+}
+</style>
+</head>
+<body>
+
+<div class="header" id="mainHeader">
+  <div class="header-row">
+    <div>
+      <h1>PP1 &mdash; Introducción a la ICI</h1>
+      <div style="font-size:.82rem;opacity:.8">Jueves 16 Abril 2026 &bull; ULS</div>
+    </div>
+    <div class="timer" id="timer">90:00</div>
+  </div>
+  <div class="progress-bar">
+    <div class="progress-step" id="prog1"></div>
+    <div class="progress-step" id="prog2"></div>
+    <div class="progress-step" id="prog3"></div>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- ====== REGISTRO ====== -->
+<div class="section active" id="secRegistro">
+  <div class="card">
+    <h2>Identificación del Alumno</h2>
+    <div class="warning-box">
+      <strong>IMPORTANTE:</strong> Esta prueba es individual. Al ingresar tu RUT se genera una versión única.
+      El orden de las preguntas, las alternativas y los datos del caso Excel son distintos para cada alumno.
+      Cualquier intento de copia será detectado.
+    </div>
+    <div class="form-row">
+      <label>RUT:</label>
+      <input type="text" id="inputRut" placeholder="12345678-9" maxlength="12">
+    </div>
+    <div class="form-row">
+      <label>Nombre:</label>
+      <input type="text" id="inputNombre" placeholder="Nombre completo">
+    </div>
+    <br>
+    <button class="btn btn-primary btn-block" onclick="iniciarPrueba()">Comenzar Prueba</button>
+  </div>
+</div>
+
+<!-- ====== SECCION 1: SELECCION MULTIPLE ====== -->
+<div class="section" id="secMC">
+  <div class="section-header">
+    <h2>Sección 1: Selección Múltiple</h2>
+    <span class="section-badge">8 preguntas &bull; 33.3% de la nota</span>
+  </div>
+  <div class="card">
+    <p style="font-size:.88rem;color:#555;margin-bottom:14px;">Selecciona la alternativa correcta para cada pregunta. Una vez que avances a la siguiente sección, NO podrás volver.</p>
+    <div id="mcContainer"></div>
+  </div>
+  <button class="btn btn-primary btn-block" id="btnNextToExcel" onclick="avanzarSeccion(2)" disabled>Completar todas las preguntas para avanzar</button>
+</div>
+
+<!-- ====== SECCION 2: CASO EXCEL ====== -->
+<div class="section" id="secExcel">
+  <div class="section-header">
+    <h2>Sección 2: Caso Excel</h2>
+    <span class="section-badge">5 preguntas &bull; 33.3% de la nota</span>
+  </div>
+  <div id="excelContainer"></div>
+  <button class="btn btn-primary btn-block" id="btnNextToReasoning" onclick="avanzarSeccion(3)" disabled>Completar todas las fórmulas para avanzar</button>
+</div>
+
+<!-- ====== SECCION 3: RAZONAMIENTO ====== -->
+<div class="section" id="secReasoning">
+  <div class="section-header">
+    <h2>Sección 3: Caso de Razonamiento Aplicado</h2>
+    <span class="section-badge">3 preguntas abiertas &bull; 33.3% de la nota</span>
+  </div>
+  <div id="reasoningContainer"></div>
+  <button class="btn btn-success btn-block" id="btnSubmitExam" onclick="enviarPrueba()" disabled>Completar todas las respuestas para enviar</button>
+</div>
+
+<!-- ====== RESULTADO ====== -->
+<div class="result-panel" id="resultPanel">
+  <h2>Prueba Enviada</h2>
+  <div style="font-size:1rem;margin:8px 0;" id="resultInfo"></div>
+  <div class="result-code" id="resultCode"></div>
+  <div style="margin:10px 0;font-size:.9rem;opacity:.8" id="resultDetail"></div>
+  <div style="display:flex;flex-direction:column;gap:10px;align-items:center;margin-top:14px;">
+    <button class="btn-send" onclick="sendEmail()" style="background:#EA4335;">&#9993; Enviar por Correo</button>
+    <button class="btn-send" onclick="sendWhatsApp()" style="background:#25D366;">&#128172; Enviar por WhatsApp</button>
+    <button class="btn-send" onclick="copyResult()" style="background:#3b82f6;">&#128203; Copiar al Portapapeles</button>
+  </div>
+  <p style="opacity:.5;font-size:.75rem;margin-top:10px;">El correo o WhatsApp se abre con el mensaje listo. Solo presiona Enviar.</p>
+</div>
+
+</div>
+
+<script>async function e(e){const t=(new TextEncoder).encode(e),a=await crypto.subtle.digest("SHA-256",t);return Array.from(new Uint8Array(a)).map(e=>e.toString(16).padStart(2,"0")).join("")}const t="ICI2026ULS",a={};function n(e,n){if(!n)return!1;const r=s.find(t=>t.id===e);if(!r||!r.__h)return!1;const l=e+"|"+n;if(void 0!==a[l])return a[l]===r.__h;const i=o(t+"|"+e+"|"+n).slice(0,16);return a[l]=i,i===r.__h}function o(e){function t(e,t){return(t>>>e|t<<32-e)>>>0}const a=[1116352408,1899447441,3049323471,3921009573,961987163,1508970993,2453635748,2870763221,3624381080,310598401,607225278,1426881987,1925078388,2162078206,2614888103,3248222580,3835390401,4022224774,264347078,604807628,770255983,1249150122,1555081692,1996064986,2554220882,2821834349,2952996808,3210313671,3336571891,3584528711,113926993,338241895,666307205,773529912,1294757372,1396182291,1695183700,1986661051,2177026350,2456956037,2730485921,2820302411,3259730800,3345764771,3516065817,3600352804,4094571909,275423344,430227734,506948616,659060556,883997877,958139571,1322822218,1537002063,1747873779,1955562222,2024104815,2227730452,2361852424,2428436474,2756734187,3204031479,3329325298];let n=[1779033703,3144134277,1013904242,2773480762,1359893119,2600822924,528734635,1541459225];const o=unescape(encodeURIComponent(e)),s=[];for(let e=0;e<o.length;e++)s.push(o.charCodeAt(e));const r=s.length;for(s.push(128);s.length%64!=56;)s.push(0);const l=8*r;for(let e=7;e>=0;e--)s.push(l>>>8*e&255);for(let e=0;e<s.length;e+=64){const o=new Array(64);for(let t=0;t<16;t++)o[t]=s[e+4*t]<<24|s[e+4*t+1]<<16|s[e+4*t+2]<<8|s[e+4*t+3];for(let e=16;e<64;e++){const a=t(7,o[e-15])^t(18,o[e-15])^o[e-15]>>>3,n=t(17,o[e-2])^t(19,o[e-2])^o[e-2]>>>10;o[e]=o[e-16]+a+o[e-7]+n>>>0}let[r,l,i,c,d,u,p,m]=n;for(let e=0;e<64;e++){const n=m+(t(6,d)^t(11,d)^t(25,d))+(d&u^~d&p)+a[e]+o[e]>>>0,s=r&l^r&i^l&i;m=p,p=u,u=d,d=c+n>>>0,c=i,i=l,l=r,r=n+((t(2,r)^t(13,r)^t(22,r))+s>>>0)>>>0}n=[n[0]+r>>>0,n[1]+l>>>0,n[2]+i>>>0,n[3]+c>>>0,n[4]+d>>>0,n[5]+u>>>0,n[6]+p>>>0,n[7]+m>>>0]}return n.map(e=>e.toString(16).padStart(8,"0")).join("")}const s=[{id:"q1",text:"Según la definición de ABET, la ingeniería es la profesión que aplica conocimientos en ciencias matemáticas y naturales para:",options:[{key:"a",text:"Descubrir nuevas leyes de la naturaleza mediante experimentación"},{key:"b",text:"Utilizar económicamente los recursos naturales en beneficio de la humanidad"},{key:"c",text:"Fabricar y comercializar productos tecnológicos en el mercado global"},{key:"d",text:"Administrar empresas y gestionar recursos humanos de forma eficiente"}],__h:"610f3194b7e266ed"},{id:"q2",text:"La pregunta fundamental que diferencia a la INGENIERÍA de la CIENCIA es:",options:[{key:"a",text:'Ciencia: "¿Por qué ocurre?" / Ingeniería: "¿Cómo diseño, construyo y optimizo?"'},{key:"b",text:'Ciencia: "¿Cuánto cuesta?" / Ingeniería: "¿Cómo lo vendo?"'},{key:"c",text:'Ciencia: "¿Quién lo inventó?" / Ingeniería: "¿Cuándo se puede usar?"'},{key:"d",text:'Ciencia: "¿Es posible?" / Ingeniería: "¿Es rentable para el mercado?"'}],__h:"26091adc82b423b3"},{id:"q3",text:"Un ingeniero que trabaja creando planos, especificaciones técnicas y modelos para una planta desalinizadora en Coquimbo está realizando la función de:",options:[{key:"a",text:"Investigación"},{key:"b",text:"Desarrollo"},{key:"c",text:"Diseño"},{key:"d",text:"Consultoría"}],__h:"9c3837bfa7970304"},{id:"q4",text:"Según estudios de Harvard Business Review, ¿qué porcentaje del éxito profesional depende de las habilidades blandas (soft skills)?",options:[{key:"a",text:"15%"},{key:"b",text:"50%"},{key:"c",text:"70%"},{key:"d",text:"85%"}],__h:"ee641c9c90d9b54f"},{id:"q5",text:"Un KPI (Key Performance Indicator) se define como:",options:[{key:"a",text:"Un software que permite gestionar los procesos de una empresa"},{key:"b",text:"Una métrica cuantificable que permite evaluar el desempeño de un proceso, área u organización respecto a un objetivo"},{key:"c",text:"Un informe financiero que se presenta a los accionistas de la empresa"},{key:"d",text:"Una herramienta exclusiva del área de recursos humanos para medir la productividad"}],__h:"3b1bf63bac4befe1"},{id:"q6",text:"¿Qué hace ÚNICO al Ingeniero Civil Industrial comparado con otras especialidades de ingeniería?",options:[{key:"a",text:"Tiene los salarios más altos del mercado laboral"},{key:"b",text:"Es el único ingeniero que puede ocupar cargos gerenciales"},{key:"c",text:"Integra y optimiza sistemas completos de personas, materiales, información, equipos y energía"},{key:"d",text:"Solo trabaja en el sector industrial y manufacturero"}],__h:"21b25ed0afa76426"},{id:"q7",text:"¿Cuál de los siguientes es un ejemplo CORRECTO de KPI para medir la eficiencia de una línea de producción?",options:[{key:"a",text:"El nombre del gerente de operaciones a cargo de la planta"},{key:"b",text:"La cantidad de reuniones realizadas por el equipo en el mes"},{key:"c",text:"El porcentaje de productos defectuosos sobre el total producido"},{key:"d",text:"El color del logo de la empresa en el informe anual"}],__h:"6fa407ed0b93b6f5"},{id:"q8",text:"Si una empresa fuera un cuerpo humano, el ICI sería el médico que entiende cómo funciona TODO el cuerpo junto. En esta analogía, ¿qué rol cumple el Ingeniero Comercial?",options:[{key:"a",text:"Diseña los órganos"},{key:"b",text:"Encuentra el mejor alimento en el mercado"},{key:"c",text:"Nutre el cuerpo adecuadamente"},{key:"d",text:"Opera y repara los órganos dañados"}],__h:"989db34a1599f242"}],r={ventas:{rows:[["Abarrotes",85e5,78e5,92e5],["Lacteos",52e5,49e5,56e5],["Carnes",68e5,72e5,65e5],["Frutas y Verduras",39e5,41e5,45e5],["Bebidas",42e5,38e5,4e6]]},costos:{rows:[["CAT-AB","Abarrotes",.35],["CAT-LA","Lacteos",.42],["CAT-CA","Carnes",.28],["CAT-FV","Frutas y Verduras",.5],["CAT-BE","Bebidas",.38]]},empleados:{rows:[["La Serena Centro",25,55e4],["Coquimbo",18,52e4],["Ovalle",15,49e4]]}},l=[{title:"Pesquera Mar Azul SpA — Coquimbo",context:"Eres un ICI recién contratado como analista en Pesquera Mar Azul SpA, una empresa pesquera artesanal de Coquimbo con 45 trabajadores. La empresa enfrenta una crisis: la captura ha disminuido un 40% en el último año, los costos operacionales subieron un 25%, 3 de los 5 capitanes de embarcación renunciaron, no existe un sistema formal de inventario (todo se registra en cuadernos), y los clientes (restaurantes y supermercados) se quejan de calidad inconsistente en el producto final. La gerenta general te pide un diagnóstico y plan de acción."},{title:"Solar del Norte SpA — Región de Atacama",context:"Trabajas como analista ICI en Solar del Norte SpA, empresa que instala paneles solares para empresas mineras y agrícolas. La empresa tiene 30 empleados y opera desde Copiapó. Problemas actuales: los últimos 4 proyectos se entregaron con un atraso promedio de 3 semanas, los presupuestos se exceden en un 30%, la satisfacción de clientes bajó de 4.5 a 2.8 (escala 1-5), hay un alto desperdicio de materiales (15% de paneles se dañan en instalación), y los jefes de proyecto están sobrecargados gestionando 3 obras simultáneas sin herramientas de planificación. El directorio te pide un plan de mejora."},{title:"Viña Estrella del Elqui — Valle del Elqui",context:"Te contrataron como analista ICI en Viña Estrella del Elqui, productora de pisco y vino con 60 trabajadores. La empresa exporta a 5 países pero enfrenta serios problemas: el 15% de la producción es rechazada en control de calidad, los contenedores de exportación llegan dañados al destino (3 reclamos en el último trimestre), la línea de producción se detuvo 3 veces el mes pasado por fallas en equipos, los operarios no siguen los procedimientos estandarizados, y no hay datos históricos digitalizados de producción. La gerenta de operaciones necesita tu análisis y propuesta."},{title:"FreshMarket Coquimbo — Cadena de Supermercados",context:'Eres analista ICI en FreshMarket, una cadena regional de supermercados con 5 sucursales y 120 empleados en la Región de Coquimbo. La empresa enfrenta múltiples problemas: la merma de inventario es del 8% (el promedio de la industria es 2%), hay filas largas en las cajas generando quejas, los quiebres de stock de productos populares son frecuentes (ocurren 12 veces por semana), la rotación de personal es del 45% anual, y las decisiones de compra se toman "por intuición" sin análisis de datos. El gerente general quiere que diagnostiques la situación y propongas soluciones.'}];let i="",c="",d=0,u=null,p=5400,m=0,g=[],f={},h=1,b=0,C=!1,v={},y={};function E(e){const t=e.replace(/[.\-]/g,"");let a=0;for(let e=0;e<t.length;e++)a=(a<<5)-a+t.charCodeAt(e)|0;return Math.abs(a)}function x(e){return{value:(e=(9301*e+49297)%233280)/233280,next:e}}function I(e,t){const a=[...e];let n=t;for(let e=a.length-1;e>0;e--){const t=x(n);n=t.next;const o=Math.floor(t.value*(e+1));[a[e],a[o]]=[a[o],a[e]]}return a}function iniciarPrueba(){const e=document.getElementById("inputRut").value.trim(),t=document.getElementById("inputNombre").value.trim();!e||e.length<8?alert("Ingresa tu RUT completo (ej: 12345678-9)"):t?(i=e,c=t,d=E(e),B(),S(),V(),A(),avanzarSeccion(1)):alert("Ingresa tu nombre completo")}function A(){$(),u=setInterval(()=>{p--,$(),p<=0&&(clearInterval(u),C||autoSubmit())},1e3)}function $(){const e=Math.floor(p/60),t=p%60,a=document.getElementById("timer");a.textContent=`${String(e).padStart(2,"0")}:${String(t).padStart(2,"0")}`,a.classList.remove("warning","danger"),p<=300?a.classList.add("danger"):p<=600&&a.classList.add("warning")}function autoSubmit(){alert("Se acabó el tiempo. Tu prueba será enviada con las respuestas completadas."),enviarPrueba(!0)}function avanzarSeccion(e){if(!(e>1&&m<e)||confirm("Una vez que avances, NO podrás volver a la sección anterior. ¿Deseas continuar?")){document.querySelectorAll(".section").forEach(e=>e.classList.remove("active")),m=e,document.getElementById(["secRegistro","secMC","secExcel","secReasoning"][e]).classList.add("active");for(let t=1;t<=3;t++){const a=document.getElementById("prog"+t);a.classList.remove("done","active"),t<e?a.classList.add("done"):t===e&&a.classList.add("active")}window.scrollTo(0,0)}}function B(){g=I([0,1,2,3,4,5,6,7],d);const e=document.getElementById("mcContainer");let t="";g.forEach((e,a)=>{const n=s[e],o=I([0,1,2,3],d+e+100);f[n.id]=o;const r=["A","B","C","D"];t+=`<div class="mc-question" id="mcq_${n.id}">\n      <div class="mc-text"><span class="mc-num">${a+1}</span><span>${n.text}</span></div>\n      <div class="mc-options">`,o.forEach((e,a)=>{const o=n.options[e];t+=`<label class="mc-option" id="opt_${n.id}_${a}" onclick="selectMC('${n.id}',${a},'${o.key}')">\n        <span class="mc-letter">${r[a]})</span>\n        <span>${o.text}</span>\n      </label>`}),t+="</div></div>"}),e.innerHTML=t}function selectMC(e,t,a){for(let t=0;t<4;t++){const a=document.getElementById(`opt_${e}_${t}`);a&&a.classList.remove("selected")}document.getElementById(`opt_${e}_${t}`).classList.add("selected"),document.getElementById(`mcq_${e}`).classList.add("answered"),v[e]=a,checkMCComplete()}function checkMCComplete(){const e=s.every(e=>v[e.id]),t=document.getElementById("btnNextToExcel");e&&(t.disabled=!1,t.className="btn btn-primary btn-block",t.textContent="Avanzar a Sección 2: Caso Excel >")}function S(){const e=x(d+500);h=.85+.3*e.value;const t=h,a=r.ventas.rows,n=r.costos.rows,o=r.empleados.rows,s=e=>1e4*Math.round(e*t/1e4),l=e=>1e3*Math.round(e*t/1e3);y={A1:"Categoría",B1:"Enero",C1:"Febrero",D1:"Marzo",A2:a[0][0],B2:s(a[0][1]),C2:s(a[0][2]),D2:s(a[0][3]),A3:a[1][0],B3:s(a[1][1]),C3:s(a[1][2]),D3:s(a[1][3]),A4:a[2][0],B4:s(a[2][1]),C4:s(a[2][2]),D4:s(a[2][3]),A5:a[3][0],B5:s(a[3][1]),C5:s(a[3][2]),D5:s(a[3][3]),A6:a[4][0],B6:s(a[4][1]),C6:s(a[4][2]),D6:s(a[4][3]),A8:"Código",B8:"Categoría",C8:"Margen Costo %",A9:n[0][0],B9:n[0][1],C9:n[0][2],A10:n[1][0],B10:n[1][1],C10:n[1][2],A11:n[2][0],B11:n[2][1],C11:n[2][2],A12:n[3][0],B12:n[3][1],C12:n[3][2],A13:n[4][0],B13:n[4][1],C13:n[4][2],A15:"Sucursal",B15:"Empleados",C15:"Sueldo Promedio",A16:o[0][0],B16:o[0][1],C16:l(o[0][2]),A17:o[1][0],B17:o[1][1],C17:l(o[1][2]),A18:o[2][0],B18:o[2][1],C18:l(o[2][2])};const i=document.getElementById("excelContainer");let c='<div class="card">\n    <h3>Caso: Supermercado FreshMart &mdash; Region de Coquimbo</h3>\n    <div class="reasoning-context">\n      <strong>Contexto:</strong> Eres analista ICI en FreshMart, una cadena de supermercados de la Región de Coquimbo.\n      El gerente necesita un análisis financiero del primer trimestre 2026 usando los datos de tu hoja Excel.\n      <strong>Escribe las fórmulas referenciando las celdas que ves en las tablas (ej: B2, C9, etc).</strong>\n    </div>\n\n    <p class="table-label">Ventas por Categoria (CLP)</p>\n    <p class="table-note">Filas 1-6 de tu hoja Excel</p>\n    <div class="table-scroll"><table class="excel-table">\n    <tr><th class="row-header"></th><th class="col-header">A</th><th class="col-header">B</th><th class="col-header">C</th><th class="col-header">D</th></tr>\n    <tr><td class="row-header">1</td><td class="cell-text"><b>Categoría</b></td><td class="cell-text"><b>Enero</b></td><td class="cell-text"><b>Febrero</b></td><td class="cell-text"><b>Marzo</b></td></tr>';for(let e=2;e<=6;e++)c+=`<tr><td class="row-header">${e}</td><td class="cell-text">${y["A"+e]}</td><td class="cell">${y["B"+e].toLocaleString("es-CL")}</td><td class="cell">${y["C"+e].toLocaleString("es-CL")}</td><td class="cell">${y["D"+e].toLocaleString("es-CL")}</td></tr>`;c+='</table></div>\n\n    <p class="table-label">Margen de Costo por Categoría</p>\n    <p class="table-note">Filas 8-13 &bull; Columna C = porcentaje del costo sobre la venta (ej: 0.35 = 35%)</p>\n    <div class="table-scroll"><table class="excel-table">\n    <tr><th class="row-header"></th><th class="col-header">A</th><th class="col-header">B</th><th class="col-header">C</th></tr>\n    <tr><td class="row-header">8</td><td class="cell-text"><b>Código</b></td><td class="cell-text"><b>Categoría</b></td><td class="cell-text"><b>Margen Costo %</b></td></tr>';for(let e=9;e<=13;e++)c+=`<tr><td class="row-header">${e}</td><td class="cell-text">${y["A"+e]}</td><td class="cell-text">${y["B"+e]}</td><td class="cell">${y["C"+e]}</td></tr>`;c+='</table></div>\n\n    <p class="table-label">Dotación por Sucursal</p>\n    <p class="table-note">Filas 15-18</p>\n    <div class="table-scroll"><table class="excel-table">\n    <tr><th class="row-header"></th><th class="col-header">A</th><th class="col-header">B</th><th class="col-header">C</th></tr>\n    <tr><td class="row-header">15</td><td class="cell-text"><b>Sucursal</b></td><td class="cell-text"><b>Empleados</b></td><td class="cell-text"><b>Sueldo Promedio</b></td></tr>';for(let e=16;e<=18;e++)c+=`<tr><td class="row-header">${e}</td><td class="cell-text">${y["A"+e]}</td><td class="cell">${y["B"+e]}</td><td class="cell">${y["C"+e].toLocaleString("es-CL")}</td></tr>`;c+="</table></div></div>",c+='<div class="card"><h3>Preguntas &mdash; Caso Excel</h3>',[{id:"ep1",text:"Venta total de Abarrotes en el trimestre (CLP)",hint:"Usa la función indicada para sumar los valores de la fila correspondiente",badge:"SUMA",ph:"Escribe tu fórmula aquí..."},{id:"ep2",text:'Usando BUSCARV, obtener el margen de costo de "Carnes" buscando por código "CAT-CA"',hint:"Busca el código en la tabla de costos y devuelve la columna del margen",badge:"BUSCARV",ph:"Escribe tu fórmula aquí..."},{id:"ep3",text:"Costo total de Lácteos en Enero: Venta Enero multiplicada por el Margen de costo",hint:"Identifica las celdas correctas de venta y margen, y multiplícalas",badge:"MULTIPLICACIÓN",ph:"Escribe tu fórmula aquí..."},{id:"ep4",text:'Total de ventas de Enero solo para categorías "Abarrotes" y "Bebidas"',hint:"Necesitas sumar con criterio para cada categoría por separado",badge:"SUMAR.SI.CONJUNTO",ph:"Escribe tu fórmula aquí..."},{id:"ep5",text:"Gasto total en sueldos de TODAS las sucursales (empleados x sueldo promedio de cada una, sumar todo)",hint:"Calcula el gasto de cada sucursal y luego suma los tres resultados",badge:"MULTIPLICACIÓN + SUMA",ph:"Escribe tu fórmula aquí..."}].forEach((e,t)=>{c+=`<div class="pregunta">\n      <div class="pregunta-header"><span class="pregunta-num">${t+1}</span><span class="pregunta-text">${e.text}</span></div>\n      <p class="hint">${e.hint} <span class="badge">${e.badge}</span></p>\n      <div class="formula-row">\n        <label>Formula:</label>\n        <input type="text" class="formula-input" id="${e.id}f" data-caso="exam" placeholder="${e.ph}" onkeydown="if(event.key==='Enter')calcExam('${e.id}f')">\n        <button class="btn-calc" onclick="calcExam('${e.id}f')">Calcular</button>\n      </div>\n      <div class="formula-row">\n        <label>Resultado:</label>\n        <div class="result-display" id="${e.id}r">Esperando formula...</div>\n      </div>\n    </div>`}),c+="</div>",i.innerHTML=c}function L(e){const t=y[e.toUpperCase()];return void 0!==t?t:void 0}function w(e){return e.toUpperCase().charCodeAt(0)-64}function q(e){return String.fromCharCode(64+e)}function U(e){const t=e.toUpperCase().split(":"),a=t[0].match(/^([A-Z]+)(\d+)$/),n=t[1].match(/^([A-Z]+)(\d+)$/);if(!a||!n)return[];const o=w(a[1]),s=parseInt(a[2]),r=w(n[1]),l=parseInt(n[2]);if(o===r){const e=[];for(let t=s;t<=l;t++){const n=L(a[1]+t);e.push(void 0!==n?n:0)}return e}if(s===l){const e=[];for(let t=o;t<=r;t++){const a=L(q(t)+s);e.push(void 0!==a?a:0)}return e}const i=[];for(let e=s;e<=l;e++){const t=[];for(let a=o;a<=r;a++){const n=L(q(a)+e);t.push(void 0!==n?n:"")}i.push(t)}return i}function M(e){const t=e.toUpperCase().split(":"),a=t[0].match(/^([A-Z]+)(\d+)$/),n=t[1].match(/^([A-Z]+)(\d+)$/);if(!a||!n)return[];const o=a[1],s=parseInt(a[2]),r=parseInt(n[2]),l=[];for(let e=s;e<=r;e++){const t=L(o+e);l.push(void 0!==t?t:"")}return l}function k(e){const t=[];let a=0,n="";for(let o=0;o<e.length;o++){const s=e[o];"("===s?(a++,n+=s):")"===s?(a--,n+=s):";"!==s&&","!==s||0!==a?n+=s:(t.push(n.trim()),n="")}return n.trim()&&t.push(n.trim()),t}function N(e,t){if("("!==e[t])return null;let a=0;for(let n=t;n<e.length;n++)if("("===e[n])a++;else if(")"===e[n]&&(a--,0===a))return{s:t,e:n};return null}function R(e){let t=e.trim();if(t.startsWith("=")&&(t=t.substring(1).trim()),!t)return{error:"Formula vacia"};try{return{value:T(t)}}catch(e){return{error:e.message||"Error"}}}function T(e){const t=(e=e.trim()).match(/^CONCATENAR?\s*\((.+)\)$/i);if(t)return k(t[1]).map(e=>String(j(e))).join("");if(e.includes("&")&&!e.match(/^(SUMA|BUSCARV|SUMAR)/i))return e.split("&").map(e=>String(j(e.trim()))).join("");const a=e.match(/^SUMAR\.SI\.CONJUNTO\s*\((.+)\)$/i);if(a)return P(a[1]);let n=e,o=0;for(;n.match(/SUMAR\.SI\.CONJUNTO\s*\(/i)&&o<10;){const e=n.search(/SUMAR\.SI\.CONJUNTO\s*\(/i),t=n.indexOf("(",e),a=N(n,t);if(!a)break;const s=P(n.substring(a.s+1,a.e));n=n.substring(0,e)+s+n.substring(a.e+1),o++}const s=n.match(/^BUSCARV\s*\((.+)\)$/i);if(s)return O(s[1]);for(o=0;n.match(/SUMA\s*\(/i)&&o<10;){const e=n.search(/SUMA\s*\(/i),t=n.indexOf("(",e),a=N(n,t);if(!a)break;const s=_(n.substring(a.s+1,a.e));n=n.substring(0,e)+s+n.substring(a.e+1),o++}for(o=0;n.match(/BUSCARV\s*\(/i)&&o<10;){const e=n.search(/BUSCARV\s*\(/i),t=n.indexOf("(",e),a=N(n,t);if(!a)break;const s=O(n.substring(a.s+1,a.e));n=n.substring(0,e)+s+n.substring(a.e+1),o++}return z(n)}function _(e){const t=k(e);let a=0;for(const e of t)if(e.match(/^[A-Z]+\d+:[A-Z]+\d+$/i)){const t=U(e);Array.isArray(t[0])?t.forEach(e=>e.forEach(e=>{"number"==typeof e&&(a+=e)})):t.forEach(e=>{"number"==typeof e&&(a+=e)})}else a+=Number(j(e))||0;return a}function O(e){const t=k(e);if(t.length<3)throw new Error("BUSCARV: 3+ argumentos");const a=j(t[0]),n=U(t[1].trim()),o=parseInt(j(t[2]));if(!Array.isArray(n[0]))throw new Error("Rango BUSCARV invalido");for(const e of n)if(String(e[0]).toLowerCase()===String(a).toLowerCase())return e[o-1];return"#N/A"}function P(e){const t=k(e);if(t.length<3||t.length%2==0)throw new Error("SUMAR.SI.CONJUNTO: args invalidos");const a=M(t[0].trim());let n=0;for(let e=0;e<a.length;e++){let o=!0;for(let a=1;a<t.length;a+=2){const n=M(t[a].trim()),s=j(t[a+1]);if(String(n[e]).toLowerCase()!==String(s).toLowerCase()){o=!1;break}}o&&(n+="number"==typeof a[e]?a[e]:0)}return n}function j(e){if((e=e.trim()).startsWith('"')&&e.endsWith('"')||e.startsWith("'")&&e.endsWith("'"))return e.slice(1,-1);if(!isNaN(e)&&""!==e)return parseFloat(e);if(e.match(/^[A-Z]+\d+$/i)){const t=L(e);if(void 0===t)throw new Error(`Celda ${e.toUpperCase()} no existe`);return t}return z(e)}function z(e){let t=(e=e.trim()).replace(/([A-Z]+)(\d+)/gi,e=>{const t=L(e);if(void 0===t)throw new Error(`Celda ${e.toUpperCase()} no existe`);return"string"==typeof t?`"${t}"`:t});if(t.match(/[^0-9+\-*/().," \t]/))throw new Error("Caracteres no permitidos");try{return Function('"use strict";return('+t+")")()}catch(e){throw new Error("Error de calculo")}}function calcExam(e){const t=document.getElementById(e),a=e.replace("f","r"),n=document.getElementById(a),o=t.value.trim();if(!o)return n.textContent="Esperando formula...",n.className="result-display",delete n.dataset.rawValue,void checkExcelComplete();const s=R(o);if(s.error)n.textContent=s.error,n.className="result-display error",delete n.dataset.rawValue;else{const e="number"==typeof s.value?s.value.toLocaleString("es-CL",{maximumFractionDigits:2}):String(s.value);n.textContent=e,n.className="result-display calculated",n.dataset.rawValue=s.value}checkExcelComplete()}function checkExcelComplete(){let e=!0;["ep1r","ep2r","ep3r","ep4r","ep5r"].forEach(t=>{const a=document.getElementById(t);a&&void 0!==a.dataset.rawValue||(e=!1)});const t=document.getElementById("btnNextToReasoning");e&&(t.disabled=!1,t.className="btn btn-primary btn-block",t.textContent="Avanzar a Seccion 3: Razonamiento >")}function F(){const e=y;return{ep1r:e.B2+e.C2+e.D2,ep2r:e.C11,ep3r:e.B3*e.C10,ep4r:e.B2+e.B6,ep5r:e.B16*e.C16+e.B17*e.C17+e.B18*e.C18}}function V(){b=d%l.length;const e=l[b];document.getElementById("reasoningContainer").innerHTML=`<div class="card">\n    <h3>${e.title}</h3>\n    <div class="reasoning-context">${e.context}</div>\n\n    <div class="reasoning-q">\n      <label>1. ¿Qué indicadores (KPIs) utilizarías para diagnosticar y monitorear el problema? Justifica al menos 3 indicadores.</label>\n      <textarea id="reason1" placeholder="Escribe tu respuesta aquí..." oninput="checkReasoningComplete();updateCharCount(this,'cc1')"></textarea>\n      <div class="char-count" id="cc1">0 caracteres</div>\n    </div>\n\n    <div class="reasoning-q">\n      <label>2. ¿Qué hard skills y soft skills del perfil ICI necesitarías para abordar esta situación? Menciona al menos 2 de cada tipo y explica por qué.</label>\n      <textarea id="reason2" placeholder="Escribe tu respuesta aquí..." oninput="checkReasoningComplete();updateCharCount(this,'cc2')"></textarea>\n      <div class="char-count" id="cc2">0 caracteres</div>\n    </div>\n\n    <div class="reasoning-q">\n      <label>3. ¿Qué solución integral propondrías? Describe tu plan de acción con al menos 3 pasos concretos.</label>\n      <textarea id="reason3" placeholder="Escribe tu respuesta aquí..." oninput="checkReasoningComplete();updateCharCount(this,'cc3')"></textarea>\n      <div class="char-count" id="cc3">0 caracteres</div>\n    </div>\n  </div>`}function updateCharCount(e,t){document.getElementById(t).textContent=e.value.length+" caracteres"}function checkReasoningComplete(){const e=document.getElementById("reason1")?.value.trim().length>20,t=document.getElementById("reason2")?.value.trim().length>20,a=document.getElementById("reason3")?.value.trim().length>20,n=document.getElementById("btnSubmitExam");e&&t&&a?(n.disabled=!1,n.className="btn btn-success btn-block",n.textContent="Enviar Prueba"):(n.disabled=!0,n.className="btn btn-block",n.textContent="Completar todas las respuestas para enviar")}function enviarPrueba(e){if(C)return;if(!e&&!confirm("¿Estás seguro que deseas enviar tu prueba? No podrás modificar tus respuestas."))return;C=!0,clearInterval(u);let t=0;s.forEach(e=>{n(e.id,v[e.id])&&e.__h&&t++});const a=F();let o=0;["ep1r","ep2r","ep3r","ep4r","ep5r"].forEach(e=>{const t=document.getElementById(e);if(!t||void 0===t.dataset.rawValue)return;const n=parseFloat(t.dataset.rawValue),s=a[e];!isNaN(n)&&Math.abs(n-s)<=Math.abs(.005*s)+.5&&o++});const r=1+6*(t/8*(1/3)+o/5*(1/3)),l=D();document.querySelectorAll(".section").forEach(e=>e.classList.remove("active")),document.getElementById("resultPanel").classList.add("show"),document.getElementById("resultInfo").innerHTML=`<strong>${c}</strong> (${i})`,document.getElementById("resultCode").textContent=l,document.getElementById("resultDetail").innerHTML=`MC: ${t}/8 | Excel: ${o}/5 | Razonamiento: pendiente revisión profesor<br>Nota parcial (sin razonamiento): <strong>${r.toFixed(1)}</strong> / Nota final: asignada por profesor`;for(let e=1;e<=3;e++)document.getElementById("prog"+e).classList.add("done");window.scrollTo(0,0)}function D(){let e=0;s.forEach(t=>{n(t.id,v[t.id])&&t.__h&&e++});const t=F();let a=0;["ep1r","ep2r","ep3r","ep4r","ep5r"].forEach(e=>{const n=document.getElementById(e);if(!n||void 0===n.dataset.rawValue)return;const o=parseFloat(n.dataset.rawValue);!isNaN(o)&&Math.abs(o-t[e])<=Math.abs(.005*t[e])+.5&&a++});const o=`${i}-MC${e}-EX${a}-PP1ICI2026`;let r=0;for(let e=0;e<o.length;e++)r=(r<<5)-r+o.charCodeAt(e)|0;return`${i.replace(/[.\-]/g,"").slice(-4)}-${e}${a}-${Math.abs(r).toString(36).toUpperCase().slice(0,4)}`}const H="ingiciuls@gmail.com";function Z(e){const t=e?"*":"";let a=0;s.forEach(e=>{n(e.id,v[e.id])&&e.__h&&a++});const o=F();let r=0;["ep1r","ep2r","ep3r","ep4r","ep5r"].forEach(e=>{const t=document.getElementById(e);if(!t||void 0===t.dataset.rawValue)return;const a=parseFloat(t.dataset.rawValue);!isNaN(a)&&Math.abs(a-o[e])<=Math.abs(.005*o[e])+.5&&r++});const d=document.getElementById("resultCode").textContent;let u=`${t}PP1 ICI - ULS 2026${t}\n`;return u+=`Alumno: ${t}${c}${t}\nRUT: ${i}\nCodigo: ${t}${d}${t}\n`,u+=`MC: ${a}/8 | Excel: ${r}/5\n`,u+=`Escenario razonamiento: ${l[b].title}\n`,u+="\n--- SELECCION MULTIPLE ---\n",g.forEach((e,t)=>{const a=s[e],o=v[a.id]||"(sin respuesta)",r=n(a.id,o);u+=`${t+1}. ${r?"OK":"MAL"} (respondio: ${o})\n`}),u+="\n--- CASO EXCEL ---\n",["ep1","ep2","ep3","ep4","ep5"].forEach((e,t)=>{const a=document.getElementById(e+"f")?.value.trim()||"(vacio)",n=document.getElementById(e+"r")?.textContent||"(vacio)";u+=`${t+1}. Formula: ${a} | Resultado: ${n}\n`}),u+="\n--- RAZONAMIENTO ---\n",u+=`Escenario: ${l[b].title}\n\n`,u+=`1. INDICADORES:\n${document.getElementById("reason1")?.value||"(vacio)"}\n\n`,u+=`2. HARD/SOFT SKILLS:\n${document.getElementById("reason2")?.value||"(vacio)"}\n\n`,u+=`3. SOLUCION PROPUESTA:\n${document.getElementById("reason3")?.value||"(vacio)"}\n`,u}function sendEmail(){const e=document.getElementById("resultCode").textContent,t=`PP1 ICI - ${c} - ${i} - ${e}`;window.open(`mailto:${H}?subject=${encodeURIComponent(t)}&body=${encodeURIComponent(Z(!1))}`,"_self")}function sendWhatsApp(){window.open(`https://wa.me/?text=${encodeURIComponent(Z(!0))}`,"_blank")}function copyResult(){const e=Z(!1);navigator.clipboard.writeText(e).then(()=>alert("Copiado.")).catch(()=>{const t=document.createElement("textarea");t.value=e,document.body.appendChild(t),t.select(),document.execCommand("copy"),document.body.removeChild(t),alert("Copiado.")})}function J(){document.getElementById("profPanel").classList.toggle("show")}function K(){"pp1ici2026"===document.getElementById("profPass").value?(document.getElementById("profContent").style.display="block",document.getElementById("profPass").parentElement.style.display="none",Q()):alert("Clave incorrecta")}function Q(){let e="<ol>";s.forEach(t=>{e+=`<li><strong>${t.correct.toUpperCase()}</strong> — ${t.text.substring(0,80)}...</li>`}),e+="</ol>",document.getElementById("profMCAnswers").innerHTML=e,document.getElementById("profExcelAnswers").innerHTML='<p><strong>Nota:</strong> Los valores varían por alumno (multiplicador basado en RUT). Las fórmulas correctas son las mismas, los resultados cambian.</p><ol><li>SUMA(B2:D2) — Total Abarrotes trimestre</li><li>BUSCARV("CAT-CA";A9:C13;3;0) — Margen Carnes = 0.28</li><li>B3*C10 — Costo Lácteos Enero</li><li>SUMAR.SI.CONJUNTO para Abarrotes + Bebidas Enero</li><li>B16*C16+B17*C17+B18*C18 — Total sueldos</li></ol>';let t="<ol>";l.forEach((e,a)=>{t+=`<li><strong>${e.title}</strong> — Asignado a RUT donde seed%4=${a}</li>`}),t+="</ol><p>El razonamiento es texto libre, requiere revisión manual.</p>",document.getElementById("profReasoningInfo").innerHTML=t}function W(){const e=document.getElementById("profCodeInput").value.trim().toUpperCase(),t=document.getElementById("profResultDiv"),a=e.match(/^(\d{4})-(\d)(\d)-([A-Z0-9]+)$/);if(!a)return void(t.innerHTML='<div class="prof-result invalid"><strong>Codigo invalido.</strong></div>');const[,n,o,s,r]=a,l=parseInt(o),i=parseInt(s),c=l/8,d=i/5,u=1+6*(c*(1/3)+d*(1/3));t.innerHTML=`<div class="prof-result valid">\n    <strong>MC: ${l}/8 | Excel: ${i}/5</strong><br>\n    Nota parcial (sin razonamiento): <strong>${u.toFixed(1)}</strong><br>\n    <em>Nota final = 1.0 + 6.0 * (${c.toFixed(2)}*0.333 + ${d.toFixed(2)}*0.333 + razonamiento*0.333)</em><br>\n    Para nota 4.0 minimo, razonamiento necesita: <strong>${Math.max(0,(.5-.333*c-.333*d)/.333*100).toFixed(0)}%</strong>\n  </div>`}</script>
+</body>
+</html>
